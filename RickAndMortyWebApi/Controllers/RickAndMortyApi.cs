@@ -38,7 +38,7 @@ namespace RickAndMortyWebApi.Controllers
             try
             {
                 string name = Request.Query["name"];
-                return RickAndMortyApiRepository.GetCharacterInfoByPersonName(name);
+                return RickAndMortyApiRepository.GetCharacterInfo(name);
             }
             catch
             {
