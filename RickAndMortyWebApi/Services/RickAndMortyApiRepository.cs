@@ -94,9 +94,9 @@ namespace RickAndMortyWebApi.Services
                 }
                 return JsonConvert.SerializeObject(characterInfo);
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
-                throw ex;
+                throw;
             }
         }
     }
