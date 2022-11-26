@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RickAndMortyWebApi.Interfaces;
 using RickAndMortyWebApi.Models;
 using RickAndMortyWebApi.Services;
 using System;
@@ -11,21 +12,21 @@ using System.Threading.Tasks;
 namespace RickAndMortyWebApi.Controllers
 {
     [ApiController]
-    public class RickAndMortyApi : ControllerBase
+    public class RickAndMortyApiController : ControllerBase
     {
 
-        public RickAndMortyApi()
+        public RickAndMortyApiController()
         {
         }
         [Route("/api/v1/check-person")]
         [HttpPost]
-        public ActionResult<bool> Post([FromBody] PersonEpisodeModel model)
+        public ActionResult<bool> Post([FromServices] IRickAndMortyApiRepository repos,[FromBody] PersonEpisodeModel model)
         {
             try
             {
-                return RickAndMortyApiRepository.IsCharacterExistsInEpisode(model.CharacterName, model.EpisodeName);
+                return repos.IsCharacterExistsInEpisode(model.PersonName, model.EpisodeName);
             }
-            catch (HttpRequestException)
+            catch (AggregateException)
             {
                 return NotFound();
             }
@@ -33,14 +34,14 @@ namespace RickAndMortyWebApi.Controllers
 
         [Route("/api/v1/person")]
         [HttpGet]
-        public ActionResult<string> Get()
+        public ActionResult<string> Get([FromServices] IRickAndMortyApiRepository repos)
         {
             try
             {
                 string name = Request.Query["name"];
-                return RickAndMortyApiRepository.GetCharacterInfo(name);
+                return repos.GetCharacterInfo(name);
             }
-            catch
+            catch(AggregateException)
             {
                 return NotFound();
             }

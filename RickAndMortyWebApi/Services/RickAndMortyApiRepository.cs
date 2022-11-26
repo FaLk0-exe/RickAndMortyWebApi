@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RickAndMortyWebApi.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,22 @@ using System.Threading.Tasks;
 
 namespace RickAndMortyWebApi.Services
 {
-    public static class RickAndMortyApiRepository
+    public class RickAndMortyApiRepository:IRickAndMortyApiRepository
     {
-        private static Regex _idRegex = new Regex(@"[0-9]+?");
-        private static async Task<string> GetJson(string url)
+        private Regex _idRegex;
+
+        public RickAndMortyApiRepository()
         {
-            HttpClient client = new HttpClient();
-            string response = await client.GetStringAsync(url);
-            return response;
+            _idRegex= new Regex(@"[0-9]+?");
         }
 
-        private static JToken GetElement(string type, string name)
+        private async Task<string> GetJson(string url)
+        {
+            HttpClient _client=new HttpClient();
+            return await _client.GetStringAsync(url);
+        }
+
+        private JToken GetElement(string type, string name)
         {
             JObject result = null;
             try
@@ -28,14 +34,14 @@ namespace RickAndMortyWebApi.Services
                 task.Wait();
                 result = JObject.Parse(task.Result);
             }
-            catch (AggregateException ex)
+            catch (AggregateException)
             {
-                throw ex.InnerException;
+                throw;
             }
             return result;
         }
 
-        private static JToken GetElement(string url)
+        private JToken GetElement(string url)
         {
             try
             {
@@ -43,32 +49,38 @@ namespace RickAndMortyWebApi.Services
                 task.Wait();
                 return JObject.Parse(task.Result);
             }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        public static bool IsCharacterExistsInEpisode(string characterName, string episodeName)
-        {
-            try
-            {
-                var characterId = (string)GetElement("character", characterName)["results"][0]["id"];
-                var episode = GetElement("episode", episodeName);
-                if (episode["results"][0]["characters"].
-                    Count(a => _idRegex.Match((string)a).Value == characterId) == 0)
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch (HttpRequestException)
+            catch (AggregateException)
             {
                 throw;
             }
         }
 
-        public static string GetCharacterInfo(string name)
+        private string GetCharacterId(string characterName)
+        {
+            return (string)GetElement("character", characterName)["results"][0]["id"];
+        }
+        
+
+        public bool IsCharacterExistsInEpisode(string characterName, string episodeName)
+        {
+            try
+            {
+                var characterId = GetCharacterId(characterName);
+                var episode = GetElement("episode", episodeName);
+                if (episode["results"][0]["characters"].
+                    Any(a => _idRegex.Match((string)a).Value == characterId))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (AggregateException)
+            {
+                throw;
+            }
+        }
+
+        public string GetCharacterInfo(string name)
         {
             try
             {
@@ -94,7 +106,7 @@ namespace RickAndMortyWebApi.Services
                 }
                 return JsonConvert.SerializeObject(characterInfo);
             }
-            catch (HttpRequestException)
+            catch (AggregateException)
             {
                 throw;
             }
