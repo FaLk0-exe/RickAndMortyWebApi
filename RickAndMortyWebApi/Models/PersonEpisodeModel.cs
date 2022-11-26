@@ -7,7 +7,7 @@ namespace RickAndMortyWebApi.Models
 {
     public class PersonEpisodeModel
     {
-        public string PersonName { get; set; }
+        public string CharacterName { get; set; }
         public string EpisodeName { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RickAndMortyWebApi.Services
 {
-    public static class RMApiRepository
+    public static class RickAndMortyApiRepository
     {
         private static Regex _idRegex = new Regex(@"[0-9]+?");
         private static async Task<string> GetJsonFromApi(string url)
@@ -49,14 +49,14 @@ namespace RickAndMortyWebApi.Services
             }
         }
 
-        public static bool IsCharacterExistsInEpisode(string personName, string episodeName)
+        public static bool IsCharacterExistsInEpisode(string characterName, string episodeName)
         {
             try
             {
-                var personId = (string)GetElementByTypeAndGetParameter("character", personName)["results"][0]["id"];
+                var characterId = (string)GetElementByTypeAndGetParameter("character", characterName)["results"][0]["id"];
                 var episode = GetElementByTypeAndGetParameter("episode", episodeName);
                 if (episode["results"][0]["characters"].
-                    Count(a => _idRegex.Match((string)a).Value == personId) == 0)
+                    Count(a => _idRegex.Match((string)a).Value == characterId) == 0)
                 {
                     return false;
                 }
@@ -68,31 +68,31 @@ namespace RickAndMortyWebApi.Services
             }
         }
 
-        public static string GetCharacterJsonInfoByPersonName(string name)
+        public static string GetCharacterInfoByPersonName(string name)
         {
             try
             {
-                var person = GetElementByTypeAndGetParameter("character", name);
-                List<dynamic> personInfo = new List<dynamic>();
-                foreach (var p in person["results"])
+                var character = GetElementByTypeAndGetParameter("character", name);
+                List<dynamic> characterInfo = new List<dynamic>();
+                foreach (var c in character["results"])
                 {
-                    if ((string)p["origin"]["url"] != "")
-                        personInfo.Add(new
+                    if ((string)c["origin"]["url"] != "")
+                        characterInfo.Add(new
                         {
-                            name = (string)p["name"],
-                            status = (string)p["status"],
-                            species = (string)p["species"],
-                            type = (string)p["type"],
-                            gender = (string)p["gender"],
+                            name = (string)c["name"],
+                            status = (string)c["status"],
+                            species = (string)c["species"],
+                            type = (string)c["type"],
+                            gender = (string)c["gender"],
                             origin = new
                             {
-                                name = (string)GetElementByUrl((string)p["origin"]["url"])["name"],
-                                type = (string)GetElementByUrl((string)p["origin"]["url"])["type"],
-                                dimension = (string)GetElementByUrl((string)p["origin"]["url"])["dimension"],
+                                name = (string)GetElementByUrl((string)c["origin"]["url"])["name"],
+                                type = (string)GetElementByUrl((string)c["origin"]["url"])["type"],
+                                dimension = (string)GetElementByUrl((string)c["origin"]["url"])["dimension"],
                             }
                         });
                 }
-                return JsonConvert.SerializeObject(personInfo);
+                return JsonConvert.SerializeObject(characterInfo);
             }
             catch (HttpRequestException ex)
             {

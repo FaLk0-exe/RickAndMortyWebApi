@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace RickAndMortyWebApi.Controllers
 {
     [ApiController]
-    public class RMController : ControllerBase
+    public class RickAndMortyApi : ControllerBase
     {
 
-        public RMController()
+        public RickAndMortyApi()
         {
         }
         [Route("/api/v1/check-person")]
@@ -23,7 +23,7 @@ namespace RickAndMortyWebApi.Controllers
         {
             try
             {
-                return RMApiRepository.IsCharacterExistsInEpisode(model.PersonName, model.EpisodeName);
+                return RickAndMortyApiRepository.IsCharacterExistsInEpisode(model.CharacterName, model.EpisodeName);
             }
             catch (HttpRequestException)
             {
@@ -38,7 +38,7 @@ namespace RickAndMortyWebApi.Controllers
             try
             {
                 string name = Request.Query["name"];
-                return RMApiRepository.GetCharacterJsonInfoByPersonName(name);
+                return RickAndMortyApiRepository.GetCharacterInfoByPersonName(name);
             }
             catch
             {
